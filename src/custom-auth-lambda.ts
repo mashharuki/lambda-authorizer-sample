@@ -20,7 +20,9 @@ export const handler = async function (event: any): Promise<APIGatewayAuthorizer
 
   // authentication step by getting and validating JWT token
   // ヘッダーからJWTを取得する
-  const authToken = event.headers['authorization'] || '';
+  const authHeader = event.headers['authorization'] || '';
+  // "Bearer "プレフィックスを削除
+  const authToken = authHeader.replace(/^Bearer\s+/i, '');
 
   try {
     // @ts-ignore
