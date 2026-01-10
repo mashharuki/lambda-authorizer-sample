@@ -1,0 +1,40 @@
+###
+# Lambda Authorizer Sample API Test
+# 
+# デプロイ後に以下の変数を設定してください：
+# 1. CDK Output から API Gateway URL を取得して baseUrl に設定
+# 2. Cognito User Pool Client ID と Domain を取得
+# 3. Client Secret を AWS Console から取得
+###
+
+# Variables
+@baseUrl = https://YOUR_API_ID.execute-api.ap-northeast-1.amazonaws.com/prod
+@cognitoDomain = buraktas-awesome-domain.auth.ap-northeast-1.amazoncognito.com
+@clientId = YOUR_CLIENT_ID
+@clientSecret = YOUR_CLIENT_SECRET
+@scope = awesomeapi-resource-server/awesomeapi.read
+
+###
+# Step 1: Cognito OAuth2 トークンを取得
+# Client Credentials Flow を使用
+POST https://{{cognitoDomain}}/oauth2/token
+Content-Type: application/x-www-form-urlencoded
+Authorization: Basic {{clientId}}:{{clientSecret}}
+
+grant_type=client_credentials&scope={{scope}}
+
+###
+# Step 2: 取得したアクセストークンを使用してAPIを呼び出す
+# 上記のリクエストから access_token をコピーして @accessToken に設定してください
+@accessToken = YOUR_ACCESS_TOKEN
+
+###
+# API呼び出し (Lambda Authorizerによる認証)
+GET {{baseUrl}}/awesomeapi
+Authorization: Bearer {{accessToken}}
+
+###
+# API呼び出し (認証なし - 401エラーが返るはず)
+GET {{baseUrl}}/awesomeapi
+
+###

@@ -8,6 +8,8 @@ import { Construct } from 'constructs';
 export class CognitoStack extends cdk.Stack {
   readonly cognitoUserPool: cognito.IUserPool;
   readonly cognitoUserPoolAppClient: cognito.IUserPoolClient;
+  readonly domainName: string;
+  readonly tokenEndpoint: string;
 
   /**
    * コンストラクター
@@ -58,6 +60,10 @@ export class CognitoStack extends cdk.Stack {
       },
     });
 
+    // 値をセット
+    this.domainName = domain.domainName;
+    this.tokenEndpoint = `https://${domain.domainName}.auth.${cdk.Stack.of(this).region}.amazoncognito.com/oauth2/token`;
+
     // ====================================================================================
     // Outputs
     // ====================================================================================
@@ -65,25 +71,21 @@ export class CognitoStack extends cdk.Stack {
     new cdk.CfnOutput(this, 'UserPoolId', {
       value: this.cognitoUserPool.userPoolId,
       description: 'Cognito User Pool ID',
-      exportName: 'CognitoUserPoolId',
     });
 
     new cdk.CfnOutput(this, 'UserPoolClientId', {
       value: this.cognitoUserPoolAppClient.userPoolClientId,
       description: 'Cognito User Pool App Client ID',
-      exportName: 'CognitoUserPoolClientId',
     });
 
     new cdk.CfnOutput(this, 'CognitoDomain', {
-      value: domain.domainName,
+      value: this.domainName,
       description: 'Cognito Domain',
-      exportName: 'CognitoDomain',
     });
 
     new cdk.CfnOutput(this, 'TokenEndpoint', {
-      value: `https://${domain.domainName}.auth.${cdk.Stack.of(this).region}.amazoncognito.com/oauth2/token`,
+      value: this.tokenEndpoint,
       description: 'Cognito OAuth2 Token Endpoint',
-      exportName: 'CognitoTokenEndpoint',
     });
   }
 }

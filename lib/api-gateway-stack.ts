@@ -9,6 +9,12 @@ import { Construct } from 'constructs';
  * API Gatewayスタック
  */
 export class ApiGatewayStack extends cdk.Stack {
+
+  readonly apiGatewayUrl: apigw.RestApi;
+  readonly apiGatewayEndpoint: string;
+  readonly authorizerLambdaArn: lambda.Function;
+  readonly apiLambdaArn: lambda.Function;
+
   /**
    * コンストラクター
    * @param scope 
@@ -26,6 +32,7 @@ export class ApiGatewayStack extends cdk.Stack {
 
     // Lambda Authorizer用のLambda関数の作成
     const authLambda = new lambdaNodejs.NodejsFunction(this, 'auth-lambda', {
+      functionName: 'awesome-auth-lambda',
       entry: './src/custom-auth-lambda.ts',
       handler: 'handler',
       runtime: lambda.Runtime.NODEJS_24_X,
@@ -38,6 +45,7 @@ export class ApiGatewayStack extends cdk.Stack {
 
     // API用のLambda関数の作成
     const apiLambda = new lambdaNodejs.NodejsFunction(this, 'awesome-api-lambda', {
+      functionName: 'awesome-api-lambda',
       entry: './src/api-lambda.ts',
       handler: 'handler',
       runtime: lambda.Runtime.NODEJS_24_X,
@@ -92,32 +100,34 @@ export class ApiGatewayStack extends cdk.Stack {
       },
     );
 
+    // 値をセット
+    this.apiGatewayUrl = awesomeApi;
+    this.apiGatewayEndpoint = `${awesomeApi.url}awesomeapi`;
+    this.authorizerLambdaArn = authLambda;
+    this.apiLambdaArn = apiLambda;
+
     // ====================================================================================
     // Outputs
     // ====================================================================================
 
     new cdk.CfnOutput(this, 'ApiGatewayUrl', {
-      value: awesomeApi.url,
+      value: this.apiGatewayUrl.url,
       description: 'API Gateway URL',
-      exportName: 'ApiGatewayUrl',
     });
 
     new cdk.CfnOutput(this, 'ApiGatewayEndpoint', {
-      value: `${awesomeApi.url}awesomeapi`,
+      value: this.apiGatewayEndpoint,
       description: 'API Gateway Awesome API Endpoint',
-      exportName: 'ApiGatewayEndpoint',
     });
 
     new cdk.CfnOutput(this, 'AuthorizerLambdaArn', {
-      value: authLambda.functionArn,
+      value: this.authorizerLambdaArn.functionArn,
       description: 'Lambda Authorizer Function ARN',
-      exportName: 'AuthorizerLambdaArn',
     });
 
     new cdk.CfnOutput(this, 'ApiLambdaArn', {
-      value: apiLambda.functionArn,
+      value: this.apiLambdaArn.functionArn,
       description: 'API Lambda Function ARN',
-      exportName: 'ApiLambdaArn',
     });
   }
 }
