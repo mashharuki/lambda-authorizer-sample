@@ -153,6 +153,18 @@ pnpm run cdk destroy '*' --force
 
 正常に Lambda Authoriserが機能していれば以下のような値が帰ってくるはず！
 
-```bash
-Hello from protected resource(Lambda Authorizer)
+```json
+{
+  "message": "Hello from protected resource(Lambda Authorizer)",
+  "userId": "123",
+  "role": "ADMIN"
+}
+```
+
+アクセストークンが場合にアクセスと以下のようになる
+
+```json
+{
+  "message": "Unauthorized"
+}
 ```
